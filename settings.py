@@ -11,3 +11,12 @@ class Settings:
         
         # Green block
         self.green_block_speed = 0.2
+        self.green_block_width = 20
+        self.green_block_height = 20
+
+        # Bullet
+        self.bullet_speed = 0.5
+        self.bullet_width = 3
+        self.bullet_height = 15
+        self.bullet_color = (60, 60, 60)
+        self.bullet_max = 3

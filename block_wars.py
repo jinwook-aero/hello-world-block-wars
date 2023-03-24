@@ -2,6 +2,7 @@ import sys
 import pygame
 from settings import Settings
 from green_block import GreenBlock
+from bullet import Bullet
 
 class BlockWars:
     """Overall class to manage assets and behavior"""
@@ -16,6 +17,7 @@ class BlockWars:
         pygame.display.set_caption("Block Wars")
 
         self.green_block = GreenBlock(self)
+        self.bullets =  pygame.sprite.Group()
         
         # Set the background color
         self.bg_color = (230,230,230)
@@ -23,10 +25,17 @@ class BlockWars:
     def run_game(self):
         """Start the main loop for the game"""
         while True:
+            # Update objects
             self._check_events()
             self.green_block.update()
+            self.bullets.update()
             self._update_screen()
 
+            # Delete objects
+            for bullet in self.bullets.copy():
+                if bullet.rect.bottom < 0:
+                    self.bullets.remove(bullet)
+            print(len(self.bullets))
 
     def _check_events(self):
         # watch for keyboard and mouse events
@@ -59,6 +68,10 @@ class BlockWars:
                     self.green_block.moving_up = True
                 elif event.key == pygame.K_DOWN:
                     self.green_block.moving_down = True
+
+                # Fire bullet
+                if event.key == pygame.K_SPACE:
+                    self._fire_bullet()
             elif event.type == pygame.KEYUP:
                 # Move end
                 if event.key == pygame.K_RIGHT:
@@ -74,9 +87,16 @@ class BlockWars:
         # Redarw the sreen during each pass through the loop
         self.screen.fill(self.settings.bg_color)
         self.green_block.blitme()
+        for bullet in self.bullets.sprites():
+            bullet.draw_bullet()
 
         # Make the most recently drawn screen visible
         pygame.display.flip()
+
+    def _fire_bullet(self):
+        if len(self.bullets) <= self.settings.bullet_max:
+            new_bullet = Bullet(self)
+            self.bullets.add(new_bullet)
 
 if __name__ == '__main__':
     # Make a game instance, and run the game
