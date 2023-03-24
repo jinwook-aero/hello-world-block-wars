@@ -25,5 +25,5 @@ class Bullet(Sprite):
         self.y -= self.settings.bullet_speed
         self.rect.y = int(self.y)
 
-    def draw_bullet(self):
+    def draw(self):
         pygame.draw.rect(self.screen, self.settings.bullet_color, self.rect)

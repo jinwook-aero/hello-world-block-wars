@@ -16,7 +16,6 @@ class GreenBlock:
 
         # Start at the bottom center
         self.rect.midbottom = self.screen_rect.midbottom
-        print(f"{self.rect.midbottom}")
 
         # Coordinate in float
         self.x = float(self.rect.x)
@@ -39,8 +38,7 @@ class GreenBlock:
             self.y += self.settings.green_block_speed
         self.rect.x = int(self.x)
         self.rect.y = int(self.y)
-        #print(f"x: {self.x}, y: {self.y}")
         
-    def blitme(self):
+    def draw(self):
         # Draw the block
         self.screen.blit(self.image, self.rect)

@@ -2,6 +2,7 @@ import sys
 import pygame
 from settings import Settings
 from green_block import GreenBlock
+from red_block import RedBlock
 from bullet import Bullet
 
 class BlockWars:
@@ -17,10 +18,14 @@ class BlockWars:
         pygame.display.set_caption("Block Wars")
 
         self.green_block = GreenBlock(self)
+        self.red_blocks = pygame.sprite.Group()
         self.bullets =  pygame.sprite.Group()
         
         # Set the background color
         self.bg_color = (230,230,230)
+
+        # Set the game
+        self._create_red_blocks()
 
     def run_game(self):
         """Start the main loop for the game"""
@@ -28,14 +33,8 @@ class BlockWars:
             # Update objects
             self._check_events()
             self.green_block.update()
-            self.bullets.update()
+            self._update_bullets()
             self._update_screen()
-
-            # Delete objects
-            for bullet in self.bullets.copy():
-                if bullet.rect.bottom < 0:
-                    self.bullets.remove(bullet)
-            print(len(self.bullets))
 
     def _check_events(self):
         # watch for keyboard and mouse events
@@ -86,12 +85,24 @@ class BlockWars:
     def _update_screen(self):
         # Redarw the sreen during each pass through the loop
         self.screen.fill(self.settings.bg_color)
-        self.green_block.blitme()
+        self.green_block.draw()
+        for red_block in self.red_blocks.sprites():
+            red_block.draw()
         for bullet in self.bullets.sprites():
-            bullet.draw_bullet()
+            bullet.draw()
 
         # Make the most recently drawn screen visible
         pygame.display.flip()
+
+    def _create_red_blocks(self):
+        red_block = RedBlock(self)
+        self.red_blocks.add(red_block)
+
+    def _update_bullets(self):
+        self.bullets.update()
+        for bullet in self.bullets.copy():
+            if bullet.rect.bottom < 0:
+                self.bullets.remove(bullet)
 
     def _fire_bullet(self):
         if len(self.bullets) <= self.settings.bullet_max:
