@@ -27,6 +27,9 @@ class GreenBlock:
         self.moving_up    = False
         self.moving_down  = False
 
+        # Firing flag
+        self.firing = False
+
     def update(self):
         if self.moving_right and self.x < self.screen_rect.right - self.settings.green_block_width:
             self.x += self.settings.green_block_speed

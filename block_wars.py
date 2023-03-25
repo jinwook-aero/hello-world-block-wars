@@ -1,4 +1,5 @@
 import sys
+import time
 import pygame
 from settings import Settings
 from green_block import GreenBlock
@@ -27,14 +28,34 @@ class BlockWars:
         # Set the game
         self._create_red_blocks()
 
+        # Set bullet firing frequency
+        self.t_last_bullet = 0
+        
+        # t=0 and current time
+        self.t0 = time.time()
+        self.t  = self.t0
+        self.frame_counter = 0
+
     def run_game(self):
         """Start the main loop for the game"""
         while True:
-            # Update objects
-            self._check_events()
-            self.green_block.update()
-            self._update_bullets()
-            self._update_screen()
+            # Frame control
+            tPass = self.t+1/self.settings.frame_per_second
+            if time.time()>=tPass:
+                # Time update
+                self.t = time.time()
+                self.frame_counter += 1
+                print(f"Current Frame: {self.frame_counter}")
+                print(f"Current Time: {self.t-self.t0}")
+
+                # Update objects
+                self._check_events()
+                self.green_block.update()
+                self._fire_bullet()
+                self._update_bullets()
+                self._update_screen()
+            else:
+                continue
 
     def _check_events(self):
         # watch for keyboard and mouse events
@@ -68,9 +89,9 @@ class BlockWars:
                 elif event.key == pygame.K_DOWN:
                     self.green_block.moving_down = True
 
-                # Fire bullet
+                # Fire begin
                 if event.key == pygame.K_SPACE:
-                    self._fire_bullet()
+                    self.green_block.firing = True
             elif event.type == pygame.KEYUP:
                 # Move end
                 if event.key == pygame.K_RIGHT:
@@ -82,8 +103,12 @@ class BlockWars:
                 elif event.key == pygame.K_DOWN:
                     self.green_block.moving_down = False
 
+                # Fire end
+                if event.key == pygame.K_SPACE:
+                    self.green_block.firing = False
+
     def _update_screen(self):
-        # Redarw the sreen during each pass through the loop
+        # Redraw the sreen during each pass through the loop
         self.screen.fill(self.settings.bg_color)
         self.green_block.draw()
         for red_block in self.red_blocks.sprites():
@@ -105,7 +130,11 @@ class BlockWars:
                 self.bullets.remove(bullet)
 
     def _fire_bullet(self):
-        if len(self.bullets) <= self.settings.bullet_max:
+        print(f"Bullet count: {len(self.bullets)}")
+        if self.green_block.firing \
+                and len(self.bullets) <= self.settings.bullet_max \
+                and time.time() >= self.t_last_bullet + self.settings.bullet_dt:
+            self.t_last_bullet = time.time()
             new_bullet = Bullet(self)
             self.bullets.add(new_bullet)
 
