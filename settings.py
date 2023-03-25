@@ -27,5 +27,5 @@ class Settings:
         self.bullet_width = 3
         self.bullet_height = 15
         self.bullet_color = (60, 60, 60)
-        self.bullet_max = 100
-        self.bullet_dt = 0.1
+        self.bullet_max = 1000
+        self.bullet_dt = 0.05

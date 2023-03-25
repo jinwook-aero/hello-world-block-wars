@@ -52,6 +52,11 @@ class BlockWars:
                 self.red_blocks.update()
                 self._fire_bullet()
                 self._update_bullets()
+                
+                # Ending check
+                self._check_ending()
+
+                # Update screen
                 self._update_screen()
             else:
                 continue
@@ -123,14 +128,13 @@ class BlockWars:
         S = self.settings
 
         # Row and columns of red blocks
-        n_red_row = min(int(S.screen_height/S.red_block_height/2),4)
+        n_red_row = min(int(S.screen_height/S.red_block_height/2),2)
         n_red_col = int(S.screen_width/S.red_block_width/2)-1
         for n_row in range(n_red_row):
             for n_col in range(n_red_col):
                 red_block = RedBlock(self)
                 red_block.x += S.red_block_width*n_col*2
                 red_block.y += S.red_block_height*n_row*2
-                print(f"{n_row},{n_col},{red_block.x},{red_block.y}")
                 self.red_blocks.add(red_block)
 
     def _update_bullets(self):
@@ -139,6 +143,10 @@ class BlockWars:
             if bullet.rect.bottom < 0:
                 self.bullets.remove(bullet)
 
+        # Collison check
+        collisions = pygame.sprite.groupcollide(
+                self.bullets, self.red_blocks, True, True)
+        
     def _fire_bullet(self):
         if self.green_block.firing \
                 and len(self.bullets) <= self.settings.bullet_max \
@@ -147,9 +155,30 @@ class BlockWars:
             new_bullet = Bullet(self)
             self.bullets.add(new_bullet)
 
+    def _check_ending(self):
+        # All kill
+        isEnded = False
+        if not self.red_blocks:
+            isEnded = True
+        elif pygame.sprite.spritecollideany(self.green_block, self.red_blocks):
+            isEnded = True
+        else:
+            max_y = 0
+            for red_block in self.red_blocks:
+                max_y = max(max_y,red_block.y)
+            if max_y>=self.settings.screen_height:
+                isEnded = True
+
+        if isEnded:
+            # Purge
+            self.red_blocks.empty()
+            self.bullets.empty()
+            
+            # Recreate
+            self._create_red_blocks()
+            self.green_block = GreenBlock(self)
+
 if __name__ == '__main__':
     # Make a game instance, and run the game
     bw = BlockWars()
     bw.run_game()
-
-
