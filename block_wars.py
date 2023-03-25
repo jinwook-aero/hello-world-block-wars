@@ -45,12 +45,11 @@ class BlockWars:
                 # Time update
                 self.t = time.time()
                 self.frame_counter += 1
-                print(f"Current Frame: {self.frame_counter}")
-                print(f"Current Time: {self.t-self.t0}")
 
                 # Update objects
                 self._check_events()
                 self.green_block.update()
+                self.red_blocks.update()
                 self._fire_bullet()
                 self._update_bullets()
                 self._update_screen()
@@ -120,8 +119,19 @@ class BlockWars:
         pygame.display.flip()
 
     def _create_red_blocks(self):
-        red_block = RedBlock(self)
-        self.red_blocks.add(red_block)
+        # Local self.settings = S
+        S = self.settings
+
+        # Row and columns of red blocks
+        n_red_row = min(int(S.screen_height/S.red_block_height/2),4)
+        n_red_col = int(S.screen_width/S.red_block_width/2)-1
+        for n_row in range(n_red_row):
+            for n_col in range(n_red_col):
+                red_block = RedBlock(self)
+                red_block.x += S.red_block_width*n_col*2
+                red_block.y += S.red_block_height*n_row*2
+                print(f"{n_row},{n_col},{red_block.x},{red_block.y}")
+                self.red_blocks.add(red_block)
 
     def _update_bullets(self):
         self.bullets.update()
@@ -130,7 +140,6 @@ class BlockWars:
                 self.bullets.remove(bullet)
 
     def _fire_bullet(self):
-        print(f"Bullet count: {len(self.bullets)}")
         if self.green_block.firing \
                 and len(self.bullets) <= self.settings.bullet_max \
                 and time.time() >= self.t_last_bullet + self.settings.bullet_dt:

@@ -18,7 +18,7 @@ class Settings:
         self.green_block_height = 20
 
         # Red block
-        self.red_block_speed = 600/self.frame_per_second
+        self.red_block_speed = 300/self.frame_per_second
         self.red_block_width = 20
         self.red_block_height = 20
 
