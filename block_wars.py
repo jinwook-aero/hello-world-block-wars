@@ -151,7 +151,6 @@ class BlockWars:
 
         # Button if game is not active
         if self.game_stats.is_active == False:
-            self.game_stats.reset_stats()
             self.button.draw()
 
         # Score board
@@ -221,6 +220,7 @@ class BlockWars:
             else: # isLost
                 self.game_stats.life -= 1
                 if self.game_stats.life <= 0:
+                    self.game_stats.reset_stats()
                     self.game_stats.is_active = False
 
             # Pause and reset
@@ -242,6 +242,7 @@ class BlockWars:
         self.green_block = GreenBlock(self)
 
     def _power_cycle(self):
+        self.game_stats.reset_stats()
         self._reset_stage()
         self.game_stats.is_active = False
 
