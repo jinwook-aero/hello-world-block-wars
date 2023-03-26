@@ -20,8 +20,9 @@ class BlockWars:
         
         self.screen = pygame.display.set_mode(
                 (self.settings.screen_width,self.settings.screen_height))
-        pygame.display.set_caption("Block Wars")
+        pygame.display.set_caption("Block Wars: Space, Arrows, P, Enter")
 
+        self.max_score = 0
         self.game_stats = GameStats(self)
         self.scoreboard = Scoreboard(self)
         self.button = Button(self,"Start",0.3,0.3)
@@ -111,11 +112,19 @@ class BlockWars:
                 # Fire begin
                 if event.key == pygame.K_SPACE:
                     self.green_block.firing = True
+                    if self.game_stats.is_active == False:
+                        self._activate_game()
 
                 # Reset game
                 if event.key == pygame.K_RETURN:
-                    self.game_stats.reset_stats()
-                    self._reset_game()
+                    self._power_cycle()
+
+                # Pause game
+                if event.key == pygame.K_p:
+                    if self.game_stats.is_active == True:
+                        self._pause_game()
+                    else:
+                        self._activate_game()
             elif event.type == pygame.KEYUP:
                 # Move end
                 if event.key == pygame.K_RIGHT:
@@ -132,7 +141,7 @@ class BlockWars:
                     self.green_block.firing = False
 
     def _update_screen(self):
-        # Redraw the sreen during each pass through the loop
+        # Redraw the screen during each pass through the loop
         self.screen.fill(self.settings.bg_color)
         self.green_block.draw()
         for red_block in self.red_blocks.sprites():
@@ -142,6 +151,7 @@ class BlockWars:
 
         # Button if game is not active
         if self.game_stats.is_active == False:
+            self.game_stats.reset_stats()
             self.button.draw()
 
         # Score board
@@ -174,8 +184,12 @@ class BlockWars:
         collisions = pygame.sprite.groupcollide(
                 self.bullets, self.red_blocks, True, True)
         if collisions:
+            # Local score
             self.game_stats.score += self.settings.red_block_point
-            self.scoreboard.prep_score()
+
+            # Global scor
+            self.max_score = max(self.max_score,self.game_stats.score)
+            self.game_stats.max_score = self.max_score
         
     def _fire_bullet(self):
         if self.green_block.firing \
@@ -211,27 +225,33 @@ class BlockWars:
 
             # Pause and reset
             time.sleep(1)
-            self._reset_game()
+            self._reset_stage()
 
     def _check_start_button(self,mouse_pos):
         isClicked = self.button.rect.collidepoint(mouse_pos)
         if isClicked and not self.game_stats.is_active:
-            # Reset game
-            self.game_stats.is_active = True
-            self.game_stats.reset_stats()
-            self._reset_game()
-            
-            # Hide the mouse cursor
-            pygame.mouse.set_visible(False)
+            self._activate_game()
 
-    def _reset_game(self):
-        # Purge
+    def _reset_stage(self):
+        # Purge block, bullet and score
         self.red_blocks.empty()
         self.bullets.empty()
         
         # Recreate
         self._create_red_blocks()
         self.green_block = GreenBlock(self)
+
+    def _power_cycle(self):
+        self._reset_stage()
+        self.game_stats.is_active = False
+
+    def _activate_game(self):
+        pygame.mouse.set_visible(False)
+        self.game_stats.is_active = True
+
+    def _pause_game(self):
+        pygame.mouse.set_visible(True)
+        self.game_stats.is_active = False
 
 if __name__ == '__main__':
     # Make a game instance, and run the game
