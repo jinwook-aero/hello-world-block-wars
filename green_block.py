@@ -16,6 +16,7 @@ class GreenBlock:
 
         # Start at the bottom center
         self.rect.midbottom = self.screen_rect.midbottom
+        self.rect.y -= self.rect.height
 
         # Coordinate in float
         self.x = float(self.rect.x)

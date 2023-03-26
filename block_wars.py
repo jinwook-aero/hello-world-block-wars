@@ -1,7 +1,11 @@
 import sys
 import time
 import pygame
+
 from settings import Settings
+from button import Button
+from game_stats import GameStats
+from scoreboard import Scoreboard
 from green_block import GreenBlock
 from red_block import RedBlock
 from bullet import Bullet
@@ -18,6 +22,9 @@ class BlockWars:
                 (self.settings.screen_width,self.settings.screen_height))
         pygame.display.set_caption("Block Wars")
 
+        self.game_stats = GameStats(self)
+        self.scoreboard = Scoreboard(self)
+        self.button = Button(self,"Start",0.3,0.3)
         self.green_block = GreenBlock(self)
         self.red_blocks = pygame.sprite.Group()
         self.bullets =  pygame.sprite.Group()
@@ -46,26 +53,34 @@ class BlockWars:
                 self.t = time.time()
                 self.frame_counter += 1
 
-                # Update objects
+                # Check user inputs
                 self._check_events()
-                self.green_block.update()
-                self.red_blocks.update()
-                self._fire_bullet()
-                self._update_bullets()
-                
-                # Ending check
-                self._check_ending()
+
+                # Active game
+                if self.game_stats.is_active == True:
+                    # Update objects
+                    self.green_block.update()
+                    self.red_blocks.update()
+                    self._fire_bullet()
+                    self._update_bullets()
+
+                    # Ending check
+                    self._check_ending()
+                else:
+                    pygame.mouse.set_visible(True)
+                    self.button.draw()
 
                 # Update screen
                 self._update_screen()
-            else:
-                continue
 
     def _check_events(self):
         # watch for keyboard and mouse events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_start_button(mouse_pos)
             elif event.type == pygame.KEYDOWN:
                 # Quit
                 if event.key == pygame.K_q:
@@ -96,6 +111,11 @@ class BlockWars:
                 # Fire begin
                 if event.key == pygame.K_SPACE:
                     self.green_block.firing = True
+
+                # Reset game
+                if event.key == pygame.K_RETURN:
+                    self.game_stats.reset_stats()
+                    self._reset_game()
             elif event.type == pygame.KEYUP:
                 # Move end
                 if event.key == pygame.K_RIGHT:
@@ -119,6 +139,13 @@ class BlockWars:
             red_block.draw()
         for bullet in self.bullets.sprites():
             bullet.draw()
+
+        # Button if game is not active
+        if self.game_stats.is_active == False:
+            self.button.draw()
+
+        # Score board
+        self.scoreboard.draw()
 
         # Make the most recently drawn screen visible
         pygame.display.flip()
@@ -146,6 +173,9 @@ class BlockWars:
         # Collison check
         collisions = pygame.sprite.groupcollide(
                 self.bullets, self.red_blocks, True, True)
+        if collisions:
+            self.game_stats.score += self.settings.red_block_point
+            self.scoreboard.prep_score()
         
     def _fire_bullet(self):
         if self.green_block.firing \
@@ -157,26 +187,51 @@ class BlockWars:
 
     def _check_ending(self):
         # All kill
-        isEnded = False
+        isWon = False
+        isLost = False
         if not self.red_blocks:
-            isEnded = True
+            isWon = True
         elif pygame.sprite.spritecollideany(self.green_block, self.red_blocks):
-            isEnded = True
+            isLost = True 
         else:
             max_y = 0
             for red_block in self.red_blocks:
                 max_y = max(max_y,red_block.y)
             if max_y>=self.settings.screen_height:
-                isEnded = True
+                isLost = True
 
-        if isEnded:
-            # Purge
-            self.red_blocks.empty()
-            self.bullets.empty()
+        if isWon or isLost:
+            # Stat update
+            if isWon:
+                self.game_stats.life += 1
+            else: # isLost
+                self.game_stats.life -= 1
+                if self.game_stats.life <= 0:
+                    self.game_stats.is_active = False
+
+            # Pause and reset
+            time.sleep(1)
+            self._reset_game()
+
+    def _check_start_button(self,mouse_pos):
+        isClicked = self.button.rect.collidepoint(mouse_pos)
+        if isClicked and not self.game_stats.is_active:
+            # Reset game
+            self.game_stats.is_active = True
+            self.game_stats.reset_stats()
+            self._reset_game()
             
-            # Recreate
-            self._create_red_blocks()
-            self.green_block = GreenBlock(self)
+            # Hide the mouse cursor
+            pygame.mouse.set_visible(False)
+
+    def _reset_game(self):
+        # Purge
+        self.red_blocks.empty()
+        self.bullets.empty()
+        
+        # Recreate
+        self._create_red_blocks()
+        self.green_block = GreenBlock(self)
 
 if __name__ == '__main__':
     # Make a game instance, and run the game

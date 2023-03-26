@@ -15,9 +15,9 @@ class RedBlock(Sprite):
         self.image = pygame.transform.scale(self.image, (self.settings.red_block_width, self.settings.red_block_height))
         self.rect = self.image.get_rect()
 
-        # Start at the bottom center
+        # Starting position at left top
         self.rect.x = self.rect.width
-        self.rect.y = self.rect.height
+        self.rect.y = self.rect.height*2
 
         # Coordinate in float
         self.x = float(self.rect.x)

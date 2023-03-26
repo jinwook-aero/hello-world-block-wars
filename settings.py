@@ -12,6 +12,9 @@ class Settings:
         # Frame per second
         self.frame_per_second = 120
         
+        # Life
+        self.life_limit = 1
+
         # Green block
         self.green_block_speed = 600/self.frame_per_second
         self.green_block_width = 20
@@ -21,6 +24,7 @@ class Settings:
         self.red_block_speed = 300/self.frame_per_second
         self.red_block_width = 20
         self.red_block_height = 20
+        self.red_block_point = 100
 
         # Bullet
         self.bullet_speed = 1200/self.frame_per_second
