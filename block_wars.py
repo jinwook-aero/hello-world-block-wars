@@ -214,9 +214,13 @@ class BlockWars:
                 isLost = True
 
         if isWon or isLost:
+            # Go to next level
+            self.game_stats.level += 1
+
             # Stat update
             if isWon:
-                self.game_stats.life += 1
+                if self.game_stats.life<self.game_stats.life_max:
+                    self.game_stats.life += 1
             else: # isLost
                 self.game_stats.life -= 1
                 if self.game_stats.life <= 0:

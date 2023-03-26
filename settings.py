@@ -5,16 +5,20 @@ class Settings:
         """Initialize setting"""
         # Screen
         self.screen_width = 600
-        self.screen_height = 400
+        self.screen_height = 450
         self.bg_color = (230,230,230)
         self.is_full_screen = False
 
         # Frame per second
-        self.frame_per_second = 120
+        self.frame_per_second = 360
         
         # Life
-        self.life_limit = 1
+        self.life     = 2
+        self.life_max = 5
 
+        # Level
+        self.level = 0
+        
         # Green block
         self.green_block_speed = 600/self.frame_per_second
         self.green_block_width = 20
@@ -27,7 +31,7 @@ class Settings:
         self.red_block_point = 100
 
         # Bullet
-        self.bullet_speed = 1200/self.frame_per_second
+        self.bullet_speed = 1600/self.frame_per_second
         self.bullet_width = 3
         self.bullet_height = 15
         self.bullet_color = (60, 60, 60)
