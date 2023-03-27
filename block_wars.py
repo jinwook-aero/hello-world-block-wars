@@ -195,7 +195,7 @@ class BlockWars:
                 and len(self.bullets) <= self.settings.bullet_max \
                 and time.time() >= self.t_last_bullet + self.settings.bullet_dt:
             self.t_last_bullet = time.time()
-            new_bullet = Bullet(self)
+            new_bullet = Bullet(self,self.green_block,-1)
             self.bullets.add(new_bullet)
 
     def _check_ending(self):

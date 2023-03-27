@@ -34,6 +34,8 @@ class Settings:
         self.bullet_speed = 1600/self.frame_per_second
         self.bullet_width = 3
         self.bullet_height = 15
-        self.bullet_color = (60, 60, 60)
         self.bullet_max = 1000
         self.bullet_dt = 0.05
+
+        self.bullet_color_from_green = (100,200,100)
+        self.bullet_color_from_red   = (200,100,100)
