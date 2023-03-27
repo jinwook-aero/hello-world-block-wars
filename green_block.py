@@ -1,4 +1,5 @@
 import pygame
+import time
 
 class GreenBlock:
     """ Class to manage the green block """
@@ -28,18 +29,77 @@ class GreenBlock:
         self.moving_up    = False
         self.moving_down  = False
 
+        # Default speed
+        self.v0 = self.settings.green_block_speed
+
+        # Current velocity
+        self.vx = 0
+        self.vy = 0
+
+        # Accel t0
+        self.ax_t0 = 0
+        self.ay_t0 = 0
+
         # Firing flag
         self.firing = False
 
     def update(self):
-        if self.moving_right and self.x < self.screen_rect.right - self.settings.green_block_width:
-            self.x += self.settings.green_block_speed
-        elif self.moving_left and self.x > self.screen_rect.left:
-            self.x -= self.settings.green_block_speed
-        elif self.moving_up and self.y > self.screen_rect.top:
-            self.y -= self.settings.green_block_speed
-        elif self.moving_down and self.y < self.screen_rect.bottom - self.settings.green_block_height:
-            self.y += self.settings.green_block_speed
+        t_accel_max = 0.5
+        # Horizontal accel
+        if self.moving_right:
+            if self.vx <= 0: # Accel started
+                self.ax_t0 = time.time()
+                dvx = self.v0-self.vx
+            else:
+                dt = time.time()-self.ax_t0
+                dvx = +max(dt,t_accel_max)*self.v0
+        elif self.moving_left:
+            if self.vx >=0: # Accel started
+                self.ax_t0 = time.time()
+                dvx = -self.v0-self.vx
+            else:
+                dt = time.time()-self.ax_t0
+                dvx = -max(dt,t_accel_max)*self.v0
+        else: # Stop
+            self.ax_t0 = time.time()
+            dvx = -self.vx
+
+        # Vertical accel
+        if self.moving_up:
+            if self.vy >= 0: # Accel started
+                self.ay_t0 = time.time()
+                dvy = -self.v0-self.vy
+            else:
+                dt = time.time()-self.ay_t0
+                dvy = -max(dt,t_accel_max)*self.v0
+        elif self.moving_down:
+            if self.vy <=0: # Accel started
+                self.ay_t0 = time.time()
+                dvy = +self.v0-self.vy
+            else:
+                dt = time.time()-self.ay_t0
+                dvy = +max(dt,t_accel_max)*self.v0
+        else: # Stop
+            self.ay_t0 = time.time()
+            dvy = -self.vy
+        
+        # Speed update
+        self.vx += dvx
+        self.vy += dvy
+
+        # Position update
+        self.x += self.vx
+        self.y += self.vy
+        
+        # Position limit
+        xLeft   = self.screen_rect.left 
+        xRight  = self.screen_rect.right - self.settings.green_block_width
+        yTop    = self.screen_rect.top
+        yBottom = self.screen_rect.bottom - self.settings.green_block_height
+
+        self.x = min(max(self.x,xLeft),xRight)
+        self.y = min(max(self.y,yTop),yBottom)
+
         self.rect.x = int(self.x)
         self.rect.y = int(self.y)
         

@@ -228,7 +228,7 @@ class BlockWars:
                     self.game_stats.is_active = False
 
             # Pause and reset
-            time.sleep(1)
+            time.sleep(0.5)
             self._reset_stage()
 
     def _check_start_button(self,mouse_pos):

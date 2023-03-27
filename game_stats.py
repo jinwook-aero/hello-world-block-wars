@@ -10,5 +10,5 @@ class GameStats:
 
     def reset_stats(self):
         self.score = 0
-        self.level = 0
+        self.level = self.settings.level
         self.life = self.settings.life

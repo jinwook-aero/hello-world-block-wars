@@ -17,10 +17,10 @@ class Settings:
         self.life_max = 5
 
         # Level
-        self.level = 0
+        self.level = 1
         
         # Green block
-        self.green_block_speed = 600/self.frame_per_second
+        self.green_block_speed = 20/self.frame_per_second
         self.green_block_width = 20
         self.green_block_height = 20
 
