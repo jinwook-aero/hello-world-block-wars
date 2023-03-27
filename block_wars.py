@@ -1,5 +1,6 @@
 import sys
 import time
+import random
 import pygame
 
 from settings import Settings
@@ -28,7 +29,8 @@ class BlockWars:
         self.button = Button(self,"Start",0.3,0.3)
         self.green_block = GreenBlock(self)
         self.red_blocks = pygame.sprite.Group()
-        self.bullets =  pygame.sprite.Group()
+        self.green_bullets = pygame.sprite.Group()
+        self.red_bullets = pygame.sprite.Group()
         
         # Set the background color
         self.bg_color = (230,230,230)
@@ -146,7 +148,9 @@ class BlockWars:
         self.green_block.draw()
         for red_block in self.red_blocks.sprites():
             red_block.draw()
-        for bullet in self.bullets.sprites():
+        for bullet in self.green_bullets.sprites():
+            bullet.draw()
+        for bullet in self.red_bullets.sprites():
             bullet.draw()
 
         # Button if game is not active
@@ -174,38 +178,50 @@ class BlockWars:
                 self.red_blocks.add(red_block)
 
     def _update_bullets(self):
-        self.bullets.update()
-        for bullet in self.bullets.copy():
+        self.green_bullets.update()
+        for bullet in self.green_bullets.copy():
             if bullet.rect.bottom < 0:
-                self.bullets.remove(bullet)
+                self.green_bullets.remove(bullet)
+
+        self.red_bullets.update()
+        for bullet in self.red_bullets.copy():
+            if bullet.rect.top > self.screen.get_rect().bottom:
+                self.red_bullets.remove(bullet)
 
         # Collison check
         collisions = pygame.sprite.groupcollide(
-                self.bullets, self.red_blocks, True, True)
+                self.green_bullets, self.red_blocks, True, True)
         if collisions:
             # Local score
             self.game_stats.score += self.settings.red_block_point
 
-            # Global scor
+            # Global score
             self.max_score = max(self.max_score,self.game_stats.score)
             self.game_stats.max_score = self.max_score
         
     def _fire_bullet(self):
         if self.green_block.firing \
-                and len(self.bullets) <= self.settings.bullet_max \
+                and len(self.green_bullets) <= self.settings.bullet_max \
                 and time.time() >= self.t_last_bullet + self.settings.bullet_dt:
             self.t_last_bullet = time.time()
             new_bullet = Bullet(self,self.green_block,-1)
-            self.bullets.add(new_bullet)
+            self.green_bullets.add(new_bullet)
+
+        for red_block in self.red_blocks:
+            if time.time() >= red_block.t_next_fire:
+                red_block.update_t_next_fire()
+                new_bullet = Bullet(self,red_block,+0.15)
+                self.red_bullets.add(new_bullet)
 
     def _check_ending(self):
-        # All kill
         isWon = False
         isLost = False
         if not self.red_blocks:
             isWon = True
         elif pygame.sprite.spritecollideany(self.green_block, self.red_blocks):
             isLost = True 
+        elif pygame.sprite.spritecollideany(self.green_block, self.red_bullets):
+            isLost = True
         else:
             max_y = 0
             for red_block in self.red_blocks:
@@ -239,7 +255,8 @@ class BlockWars:
     def _reset_stage(self):
         # Purge block, bullet and score
         self.red_blocks.empty()
-        self.bullets.empty()
+        self.green_bullets.empty()
+        self.red_bullets.empty()
         
         # Recreate
         self._create_red_blocks()

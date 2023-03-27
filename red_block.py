@@ -39,6 +39,8 @@ class RedBlock(Sprite):
         # Current time
         self.t0 = time.time()
         self.t_rand = self.t0
+        self.t_next_fire = self.t0 
+        self.update_t_next_fire()
 
     def update(self):
         # Random velocity
@@ -69,3 +71,8 @@ class RedBlock(Sprite):
     
     def draw(self):
         self.screen.blit(self.image, self.rect)
+
+    def update_t_next_fire(self):
+        self.t_next_fire += self.settings.bullet_dt*1000 \
+                *random.random()/self.level
+

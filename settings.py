@@ -38,4 +38,4 @@ class Settings:
         self.bullet_dt = 0.05
 
         self.bullet_color_from_green = (100,200,100)
-        self.bullet_color_from_red   = (200,100,100)
+        self.bullet_color_from_red   = (200,150,150)
